@@ -9,6 +9,7 @@ class View(QtGui.QWidget):
     def __init__(self, data):
         super(View, self).__init__()
         self.data = data
+        self.grey_palette = [QtGui.qRgb(i,i,i) for i in range(256)]
         self.initUI()
 
     def initUI(self):
@@ -25,7 +26,7 @@ class View(QtGui.QWidget):
             h += 1
 
         self.image = QtGui.QImage(self.data, w, h, QtGui.QImage.Format_Indexed8)
-        self.image.setColorTable([QtGui.qRgb(i,i,i) for i in range(256)])
+        self.image.setColorTable(self.grey_palette)
 
     def resizeEvent(self, e):
         self.BytePlot()
