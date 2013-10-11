@@ -15,7 +15,10 @@ class View(QtGui.QWidget):
     def initUI(self):
         QtGui.QWidget.__init__(self)
         QtGui.QShortcut(QtGui.QKeySequence("Esc"), self, self.terminate)
+        QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.terminate)
         QtGui.QShortcut(QtGui.QKeySequence("Ctrl+q"), self, self.terminate)
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+c"), self, self.terminate)
+
         self.setGeometry(0, 0, 640, 480)
         self.setWindowTitle('BinView')
 
@@ -28,8 +31,19 @@ class View(QtGui.QWidget):
         self.image = QtGui.QImage(self.data, w, h, QtGui.QImage.Format_Indexed8)
         self.image.setColorTable(self.grey_palette)
 
+    def digraph(self):
+        w = 256
+        h = 256
+        c = QtGui.qRgb(255,255,255)
+        self.image = QtGui.QImage(w, h, QtGui.QImage.Format_RGB32)
+        for i in xrange(0,len(self.data),2):
+            x = ord(self.data[i])
+            y = ord(self.data[i+1])
+            self.image.setPixel(x,y,c)
+
     def resizeEvent(self, e):
-        self.BytePlot()
+        #self.BytePlot()
+        self.digraph()
 
     def paintEvent(self, e):
         qp = QtGui.QPainter()
@@ -42,7 +56,11 @@ class View(QtGui.QWidget):
     def terminate(self):
         QtGui.QApplication.quit()
 
+
+
+##
 ## main
+##
 if len(sys.argv) != 2:
     print "need file"
     sys.exit(1)
