@@ -14,6 +14,7 @@ class View(QtGui.QWidget):
     def initUI(self):
         QtGui.QWidget.__init__(self)
         QtGui.QShortcut(QtGui.QKeySequence("Esc"), self, self.terminate)
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+q"), self, self.terminate)
         self.setGeometry(0, 0, 640, 480)
         self.setWindowTitle('BinView')
 
@@ -24,9 +25,7 @@ class View(QtGui.QWidget):
             h += 1
 
         self.image = QtGui.QImage(self.data, w, h, QtGui.QImage.Format_Indexed8)
-        #self.image.setColorTable(range(256))
-        for i in range(256):
-            self.image.setColor(i, QtGui.qRgb(i,i,i))
+        self.image.setColorTable([QtGui.qRgb(i,i,i) for i in range(256)])
 
     def resizeEvent(self, e):
         self.BytePlot()
@@ -51,5 +50,6 @@ fd = open(sys.argv[1])
 data = fd.read()
 fd.close()
 app = QtGui.QApplication(sys.argv)
-View(data).show()
+view = View(data)
+view.show()
 sys.exit(app.exec_()) 
