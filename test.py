@@ -16,8 +16,8 @@ class View(QtGui.QWidget):
                       "digraphWord":[self.preDigraphWord,self.digraphWord,self]
                       }
 
-        #self.mode = "bytePlot"
-        self.mode = "digraphByte"
+        self.mode = "bytePlot"
+        #self.mode = "digraphByte"
         #self.mode = "digraphWord"
 
         self.modes[self.mode][0]()
@@ -29,9 +29,6 @@ class View(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.terminate)
         QtGui.QShortcut(QtGui.QKeySequence("Ctrl+q"), self, self.terminate)
         QtGui.QShortcut(QtGui.QKeySequence("Ctrl+c"), self, self.terminate)
-
-        self.setGeometry(0, 0, 640, 480)
-        self.setWindowTitle('BinView')
 
     # BytePlot:
     # each byte from data is a color (grey scale)
@@ -114,19 +111,14 @@ class View(QtGui.QWidget):
     def terminate(self):
         QtGui.QApplication.quit()
 
-
-
-##
-## main
-##
 if len(sys.argv) != 2:
     print "need file"
     sys.exit(1)
-
 fd = open(sys.argv[1])
 data = fd.read()
 fd.close()
+
 app = QtGui.QApplication(sys.argv)
 view = View(data)
 view.show()
-sys.exit(app.exec_()) 
+sys.exit(app.exec_())
