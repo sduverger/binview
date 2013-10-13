@@ -23,10 +23,17 @@ class RenderArea(QtGui.QWidget):
         self.act = act
         self.preCalc()
 
+    def preCalc(self):
+        pass
+
+    def render(self):
+        pass
+
     def show(self):
-        self.parentWidget().resize(640, 480)
         self.parentWidget().setMinimumSize(10,10)
+        self.parentWidget().resize(640, 480)
         super(RenderArea, self).show()
+        self.render()
 
     def update(self, file):
         self.file = file
@@ -45,9 +52,6 @@ class RenderArea(QtGui.QWidget):
         e.ignore()
         self.act.setChecked(False)
 
-    def resizeEvent(self, e):
-        self.render()
-
 # BytePlot:
 # . byte value is color (grey scale)
 # . bytes order from binary gives coordinates
@@ -55,9 +59,6 @@ class BytePlot(RenderArea):
     def __init__(self, file, act):
         super(BytePlot, self).__init__("Byte Plot", file, act)
         self.grey_palette = [QtGui.qRgb(i,i,i) for i in range(256)]
-
-    def preCalc(self):
-        pass
 
     def render(self):
         w = self.width()
@@ -68,6 +69,9 @@ class BytePlot(RenderArea):
         self.image = QtGui.QImage(self.file.data, w, h, QtGui.QImage.Format_Indexed8)
         self.image.setColorTable(self.grey_palette)
 
+    def resizeEvent(self, e):
+        if self.isVisible():
+            self.render()
 
 # DigraphPlot:
 # . takes 2 bytes, 1st is X, 2nd is Y, color is fixed
