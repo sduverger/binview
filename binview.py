@@ -4,7 +4,7 @@ from PyQt4 import Qt
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
-import sys
+import sys, array
 
 class File(object):
     def __init__(self, name):
@@ -57,8 +57,8 @@ class RenderArea(QtGui.QWidget):
 # . bytes order from binary gives coordinates
 class BytePlot(RenderArea):
     def __init__(self, file, act):
-        super(BytePlot, self).__init__("Byte Plot", file, act)
         self.grey_palette = [QtGui.qRgb(i,i,i) for i in range(256)]
+        super(BytePlot, self).__init__("Byte Plot", file, act)
 
     def render(self):
         w = self.width()
@@ -78,27 +78,24 @@ class BytePlot(RenderArea):
 # . for file size > 64KB, entropy may lead to a white 256x256 square
 class DigraphPlot(RenderArea):
     def __init__(self, file, act):
-        self.color = QtGui.qRgb(255,255,255)
-        self.image = QtGui.QImage(256, 256, QtGui.QImage.Format_RGB32)
+        self.grey_palette = [QtGui.qRgb(i,i,i) for i in range(256)]
         super(DigraphPlot, self).__init__("Digraph Plot", file, act)
 
     def preCalc(self):
-        self.points = []
-
         ln = len(self.file.data)
         if ln % 2 != 0:
             ln -= 1
 
-        # for i in xrange(0,ln,2):
+        self.pixels = array.array('B', 256*256*'\x00')
+
         for i in xrange(0,ln-1):
             x = ord(self.file.data[i])
             y = ord(self.file.data[i+1])
-            self.points.append((x,y))
+            self.pixels[x+y*256] = 255
 
-    def render(self):
-        self.image.fill(0)
-        for x,y in self.points:
-            self.image.setPixel(x, y, self.color)
+        self.image = QtGui.QImage(self.pixels.tostring(), 256, 256, QtGui.QImage.Format_Indexed8)
+        self.image.setColorTable(self.grey_palette)
+
 
 # File Slider
 class Slider(QtGui.QSlider):
