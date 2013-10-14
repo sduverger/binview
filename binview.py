@@ -33,7 +33,7 @@ class RenderArea(QtGui.QWidget):
         self.parentWidget().setMinimumSize(10,10)
         self.parentWidget().resize(640, 480)
         super(RenderArea, self).show()
-        self.render()
+        self.render() #now visible
 
     def update(self, file):
         self.file = file
@@ -100,6 +100,18 @@ class DigraphPlot(RenderArea):
         for x,y in self.points:
             self.image.setPixel(x, y, self.color)
 
+# File Slider
+class Slider(QtGui.QSlider):
+    def __init__(self, file, act):
+        super(Slider, self).__init__(QtCore.Qt.Horizontal)
+        self.setWindowTitle("File Slider")
+        self.file = file
+        self.act = act
+        self.valueChanged.connect(self.moved)
+
+    def moved(self, value):
+        print value
+
 class BinView(QtGui.QMainWindow):
     def __init__(self):
         super(BinView, self).__init__()
@@ -146,6 +158,7 @@ class BinView(QtGui.QMainWindow):
 
         self.viewMenu = self.menuBar().addMenu("&View")
         self.viewActs = {}
+        self.initViewAct(Slider, "&File slider", "Ctrl+s")
         self.initViewAct(BytePlot, "&Byte plot", "Ctrl+b")
         self.initViewAct(DigraphPlot, "&Digraph plot", "Ctrl+d")
 
