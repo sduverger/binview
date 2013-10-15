@@ -16,9 +16,10 @@ class File(object):
         self.fd.close()
 
 class RenderArea(QtGui.QWidget):
-    def __init__(self, name, file, act):
-        super(RenderArea, self).__init__()
+    def __init__(self, parent, name, file, act):
+        super(RenderArea, self).__init__(parent)
         self.setWindowTitle(name)
+        self.parentWidget().resize(270, 360)
         self.file = file
         self.act = act
         self.preCalc()
@@ -30,10 +31,8 @@ class RenderArea(QtGui.QWidget):
         pass
 
     def show(self):
-        self.parentWidget().setMinimumSize(10,10)
-        self.parentWidget().resize(640, 480)
         super(RenderArea, self).show()
-        self.render() #now visible
+        self.render()
 
     def update(self, file):
         self.file = file
@@ -56,11 +55,12 @@ class RenderArea(QtGui.QWidget):
 # . byte value is color (grey scale)
 # . bytes order from binary gives coordinates
 class BytePlot(RenderArea):
-    def __init__(self, file, act):
+    def __init__(self, parent, file, act):
         self.grey_palette = [QtGui.qRgb(i,i,i) for i in range(256)]
-        super(BytePlot, self).__init__("Byte Plot", file, act)
+        super(BytePlot, self).__init__(parent, "Byte Plot", file, act)
 
     def render(self):
+        print "w %d h %d" % (self.width(), self.height())
         w = self.width()
         h = len(self.file.data)/self.width()
         if len(self.file.data) % self.width() != 0:
@@ -77,9 +77,9 @@ class BytePlot(RenderArea):
 # . takes 2 bytes, 1st is X, 2nd is Y, color is fixed
 # . for file size > 64KB, entropy may lead to a white 256x256 square
 class DigraphPlot(RenderArea):
-    def __init__(self, file, act):
+    def __init__(self, parent, file, act):
         self.grey_palette = [QtGui.qRgb(i,i,i) for i in range(256)]
-        super(DigraphPlot, self).__init__("Digraph Plot", file, act)
+        super(DigraphPlot, self).__init__(parent, "Digraph Plot", file, act)
 
     def preCalc(self):
         ln = len(self.file.data)
@@ -99,8 +99,8 @@ class DigraphPlot(RenderArea):
 
 # File Slider
 class Slider(QtGui.QSlider):
-    def __init__(self, file, act):
-        super(Slider, self).__init__(QtCore.Qt.Horizontal)
+    def __init__(self, parent, file, act):
+        super(Slider, self).__init__(QtCore.Qt.Horizontal, parent)
         self.setWindowTitle("File Slider")
         self.file = file
         self.act = act
@@ -191,8 +191,10 @@ class BinView(QtGui.QMainWindow):
         act = self.sender()
         if act.isChecked():
             if act.widget is None:
-                act.widget = act.cls(self.file, act)
-                act.widget.setParent(self.mdi.addSubWindow(act.widget))
+                subwin = QtGui.QMdiSubWindow()
+                act.widget = act.cls(subwin, self.file, act)
+                subwin.setWidget(act.widget)
+                self.mdi.addSubWindow(subwin)
                 act.widget.show()
             else:
                 act.widget.parentWidget().show()
